@@ -1,2 +1,2 @@
 # messica-machine
-Dream scream machine for 10,000 drum machines
+Dream scream machine for [10,000 drum machines](https://10kdrummachines.com).
