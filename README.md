@@ -48,3 +48,6 @@ http://localhost:3000
 - Switch between BPM presets
 - Press Reset to clear the entire grid
 - The built-in screams will play automatically whenever their steps are active.
+
+<img width="1231" height="669" alt="Screenshot 2025-12-10 at 11 58 26 AM" src="https://github.com/user-attachments/assets/54317cf6-c304-46c2-bd6d-b1b3718ec6be" />
+
