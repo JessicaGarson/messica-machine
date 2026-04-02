@@ -331,11 +331,11 @@
 }
 
 .machine-step-accent-kick.is-active::before {
-  background: #1f1f1f;
+  background: var(--machine-step-kick);
 }
 
 .machine-step-accent-static.is-active::before {
-  background: #8d8d8d;
+  background: var(--machine-step-static);
 }
 
 .machine-step-accent-grit.is-active::before {

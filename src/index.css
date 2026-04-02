@@ -14,6 +14,8 @@
   --machine-hover: rgba(0, 0, 0, 0.025);
   --machine-active-orange: rgba(209, 102, 38, 0.08);
   --machine-active-green: rgba(121, 210, 111, 0.08);
+  --machine-step-kick: #1f1f1f;
+  --machine-step-static: #8d8d8d;
   --machine-orange: #d16626;
   --machine-orange-deep: #ab4f17;
   --machine-green: #79d26f;
@@ -31,6 +33,8 @@
     --machine-hover: rgba(255, 255, 255, 0.05);
     --machine-active-orange: rgba(209, 102, 38, 0.16);
     --machine-active-green: rgba(121, 210, 111, 0.14);
+    --machine-step-kick: #d9d9d4;
+    --machine-step-static: #b9b9b3;
     --machine-orange: #f18a46;
     --machine-orange-deep: #ff9e61;
     --machine-green: #8cdd7e;
