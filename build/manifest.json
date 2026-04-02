@@ -1,0 +1,16 @@
+{
+  "short_name": "Messica Machine",
+  "name": "Messica Machine",
+  "icons": [
+    {
+      "src": "icon-square.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#d16626",
+  "background_color": "#ffffff"
+}
