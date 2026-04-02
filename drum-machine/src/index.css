@@ -1,3 +1,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@600;700&display=swap");
+
+:root {
+  color-scheme: light dark;
+  --machine-bg: #ffffff;
+  --machine-text: #000000;
+  --machine-muted: #7a7a7a;
+  --machine-line: #d9d9d9;
+  --machine-surface: #ffffff;
+  --machine-hover: rgba(0, 0, 0, 0.025);
+  --machine-active-orange: rgba(209, 102, 38, 0.08);
+  --machine-active-green: rgba(121, 210, 111, 0.08);
+  --machine-orange: #d16626;
+  --machine-orange-deep: #ab4f17;
+  --machine-green: #79d26f;
+  --machine-green-deep: #487b3f;
+  --machine-forest: #29422a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --machine-bg: #050505;
+    --machine-text: #f5f5f2;
+    --machine-muted: #9d9d98;
+    --machine-line: #2b2b2b;
+    --machine-surface: #0a0a0a;
+    --machine-hover: rgba(255, 255, 255, 0.05);
+    --machine-active-orange: rgba(209, 102, 38, 0.16);
+    --machine-active-green: rgba(121, 210, 111, 0.14);
+    --machine-orange: #f18a46;
+    --machine-orange-deep: #ff9e61;
+    --machine-green: #8cdd7e;
+    --machine-green-deep: #8cdd7e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--machine-text);
+  background: var(--machine-bg);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}

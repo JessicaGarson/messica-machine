@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# messica-machine
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Dream scream machine for [10,000 Drum Machines](https://10kdrummachines.com).
 
-## Available Scripts
+A browser-based 16-step drum machine built with React and Tone.js. Messica Machine lets you build rhythms from bass drum, synth, noise, and preloaded scream samples in a minimal interface with responsive light and dark mode styling.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- 7 sound tracks
+  - Bass Drum
+  - Sine Wave
+  - White Noise
+  - Brown Noise
+  - Scream 1
+  - Scream 2
+  - Scream 3
+- 16-step sequencer grid for each track
+- Selectable BPM presets: `97`, `123`, `138`, `192`
+- Real-time step highlighting synced to Tone.js
+- Built-in synthesis, sample playback, filtering, distortion, compression, and reverb
+- Custom browser icon and simplified UI styling
+- Responsive light and dark mode support
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Getting Started
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. Install dependencies
 
-### `npm test`
+```bash
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Start the development server
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Then open:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```text
+http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Build for production
 
-### `npm run eject`
+```bash
+npm run build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Using Messica Machine
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Click `Play` to unlock audio and start the sequencer
+- Turn steps on or off on any row
+- Switch between BPM presets while the pattern is running
+- Press `Reset` to clear the grid
+- Layer bass drum, synth, noise, and scream tracks to build dense patterns
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Notes
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Audio starts after user interaction because browsers block autoplay by default.
+- Scream samples are stored in `src/assets/screams/`.
+- The current version includes a bass drum track, updated audio routing for better scream separation, and a simplified visual style.

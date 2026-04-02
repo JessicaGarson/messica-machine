@@ -1,11 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { Play, Square, RotateCcw } from 'lucide-react';
+import './App.css';
 
 // 🔊 import scream samples so bundler gives us valid URLs
 import scream1Url from './assets/screams/scream.wav';
 import scream2Url from './assets/screams/scream2.wav';
 import scream3Url from './assets/screams/scream3.wav';
+
+const tracks = [
+  { id: 'kick', label: 'Bass Drum', detail: 'Low End', accent: 'kick' },
+  { id: 'sine', label: 'Sine Wave', detail: 'Signal', accent: 'signal' },
+  { id: 'white', label: 'White Noise', detail: 'Static', accent: 'static' },
+  { id: 'brown', label: 'Brown Noise', detail: 'Grit', accent: 'grit' },
+  { id: 'scream1', label: 'Scream 1', detail: 'Voice A', accent: 'voice-a' },
+  { id: 'scream2', label: 'Scream 2', detail: 'Voice B', accent: 'voice-b' },
+  { id: 'scream3', label: 'Scream 3', detail: 'Voice C', accent: 'voice-c' },
+];
 
 const DrumMachine = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,6 +24,7 @@ const DrumMachine = () => {
   const bpmOptions = [97, 123, 138, 192];
   const [currentStep, setCurrentStep] = useState(0);
   const [pattern, setPattern] = useState({
+    kick: Array(16).fill(false),
     sine: Array(16).fill(false),
     white: Array(16).fill(false),
     brown: Array(16).fill(false),
@@ -24,27 +36,129 @@ const DrumMachine = () => {
   const [samplesLoaded, setSamplesLoaded] = useState(false);
 
   const loopRef = useRef(null);
+  const kickRef = useRef(null);
   const sineRef = useRef(null);
   const whiteNoiseRef = useRef(null);
   const brownNoiseRef = useRef(null);
+  const whiteNoiseFilterRef = useRef(null);
+  const brownNoiseFilterRef = useRef(null);
+  const drumBusRef = useRef(null);
+  const screamBusRef = useRef(null);
+  const screamFilterRef = useRef(null);
   const playersRef = useRef({}); // { scream1: Player, ... }
+  const patternRef = useRef(pattern);
 
   useEffect(() => {
-    const distortion = new Tone.Distortion(0.8).toDestination();
+    patternRef.current = pattern;
+  }, [pattern]);
 
-    // Sine synth
-    sineRef.current = new Tone.Synth({
+  useEffect(() => {
+    const drumReverb = new Tone.Reverb({
+      decay: 1.4,
+      wet: 0.08,
+      preDelay: 0.02,
+    });
+    const screamReverb = new Tone.Reverb({
+      decay: 2.2,
+      wet: 0.14,
+      preDelay: 0.03,
+    });
+    const masterLimiter = new Tone.Limiter(-1).toDestination();
+    const drumCompressor = new Tone.Compressor(-22, 2.5);
+    const screamCompressor = new Tone.Compressor(-14, 1.5);
+    const distortion = new Tone.Distortion(0.28);
+    screamFilterRef.current = new Tone.Filter({
+      type: 'highpass',
+      frequency: 140,
+      rolloff: -24,
+    });
+
+    drumBusRef.current = new Tone.Gain(0.92);
+    screamBusRef.current = new Tone.Gain(1.08);
+
+    distortion.connect(drumReverb);
+    drumReverb.connect(drumCompressor);
+    drumCompressor.connect(drumBusRef.current);
+    drumBusRef.current.connect(masterLimiter);
+
+    screamFilterRef.current.connect(screamReverb);
+    screamReverb.connect(screamCompressor);
+    screamCompressor.connect(screamBusRef.current);
+    screamBusRef.current.connect(masterLimiter);
+
+    Tone.Transport.bpm.value = bpm;
+
+    kickRef.current = new Tone.MembraneSynth({
+      pitchDecay: 0.045,
+      octaves: 7,
       oscillator: { type: 'sine' },
-      envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 },
+      envelope: {
+        attack: 0.001,
+        decay: 0.48,
+        sustain: 0,
+        release: 0.16,
+      },
     }).connect(distortion);
-    sineRef.current.volume.value = -12;
+    kickRef.current.volume.value = 1;
+
+    // Give the tonal voice more body so it holds space beside the screams.
+    sineRef.current = new Tone.MonoSynth({
+      oscillator: { type: 'fatsine', count: 3, spread: 24 },
+      filter: { Q: 1, type: 'lowpass', rolloff: -24 },
+      envelope: { attack: 0.004, decay: 0.28, sustain: 0.08, release: 0.22 },
+      filterEnvelope: {
+        attack: 0.001,
+        decay: 0.18,
+        sustain: 0.2,
+        release: 0.2,
+        baseFrequency: 120,
+        octaves: 3,
+      },
+    }).connect(distortion);
+    sineRef.current.volume.value = -5;
 
     // Noise sources
-    whiteNoiseRef.current = new Tone.Noise('white').connect(distortion);
-    whiteNoiseRef.current.volume.value = -15;
+    whiteNoiseFilterRef.current = new Tone.Filter({
+      type: 'bandpass',
+      frequency: 3200,
+      Q: 1.8,
+      rolloff: -24,
+    });
+    const whiteNoiseDrive = new Tone.Distortion(0.5);
+    whiteNoiseFilterRef.current.connect(whiteNoiseDrive);
+    whiteNoiseDrive.connect(distortion);
 
-    brownNoiseRef.current = new Tone.Noise('brown').connect(distortion);
-    brownNoiseRef.current.volume.value = -15;
+    whiteNoiseRef.current = new Tone.NoiseSynth({
+      noise: { type: 'white' },
+      envelope: {
+        attack: 0.001,
+        decay: 0.11,
+        sustain: 0,
+        release: 0.04,
+      },
+    }).connect(whiteNoiseFilterRef.current);
+    whiteNoiseRef.current.volume.value = -8;
+
+    brownNoiseFilterRef.current = new Tone.Filter({
+      type: 'highpass',
+      frequency: 900,
+      Q: 0.9,
+      rolloff: -24,
+    });
+    const brownNoiseDrive = new Tone.Distortion(0.42);
+    brownNoiseFilterRef.current.connect(brownNoiseDrive);
+    brownNoiseDrive.connect(distortion);
+
+    brownNoiseRef.current = new Tone.NoiseSynth({
+      noise: { type: 'brown' },
+      envelope: {
+        attack: 0.001,
+        decay: 0.18,
+        sustain: 0,
+        release: 0.05,
+      },
+    }).connect(brownNoiseFilterRef.current);
+    brownNoiseRef.current.volume.value = -7;
 
     // Sample URLs (now coming from imports, so they are guaranteed to be real audio files)
     const sampleUrls = {
@@ -72,10 +186,12 @@ const DrumMachine = () => {
         onerror: (err) => {
           console.error(`Error loading ${key} from ${url}`, err);
         },
-      }).connect(distortion);
+      }).connect(screamFilterRef.current);
 
+      player.fadeIn = 0.005;
+      player.fadeOut = 0.05;
       // loud enough to be sure we hear them
-      player.volume.value = 0;
+      player.volume.value = -2;
       playersRef.current[key] = player;
     });
 
@@ -84,17 +200,41 @@ const DrumMachine = () => {
         loopRef.current.stop();
         loopRef.current.dispose();
       }
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      kickRef.current?.dispose();
       sineRef.current?.dispose();
       whiteNoiseRef.current?.dispose();
       brownNoiseRef.current?.dispose();
+      whiteNoiseFilterRef.current?.dispose();
+      brownNoiseFilterRef.current?.dispose();
+      drumBusRef.current?.dispose();
+      screamBusRef.current?.dispose();
+      screamFilterRef.current?.dispose();
       Object.values(playersRef.current).forEach((p) => p.dispose());
       distortion.dispose();
+      drumReverb.dispose();
+      screamReverb.dispose();
+      drumCompressor.dispose();
+      screamCompressor.dispose();
+      masterLimiter.dispose();
     };
   }, []);
 
   useEffect(() => {
-    Tone.Transport.bpm.value = bpm;
+    Tone.Transport.bpm.rampTo(bpm, 0.08);
   }, [bpm]);
+
+  const handleBpmChange = (nextBpm) => {
+    setBpm(nextBpm);
+
+    Tone.Transport.bpm.cancelScheduledValues(Tone.now());
+    if (Tone.Transport.state === 'started') {
+      Tone.Transport.bpm.rampTo(nextBpm, 0.05);
+    } else {
+      Tone.Transport.bpm.value = nextBpm;
+    }
+  };
 
   const toggleStep = (track, step) => {
     setPattern((prev) => ({
@@ -104,16 +244,16 @@ const DrumMachine = () => {
   };
 
   const playSound = (track, time) => {
-    if (track === 'sine') {
-      sineRef.current?.triggerAttackRelease('C4', '16n', time);
+    if (track === 'kick') {
+      kickRef.current?.triggerAttackRelease('C1', '8n', time, 1);
+    } else if (track === 'sine') {
+      sineRef.current?.triggerAttackRelease('C2', '8n', time, 0.9);
     } else if (track === 'white') {
       if (!whiteNoiseRef.current) return;
-      whiteNoiseRef.current.start(time);
-      whiteNoiseRef.current.stop(time + 0.1);
+      whiteNoiseRef.current.triggerAttackRelease('32n', time, 1);
     } else if (track === 'brown') {
       if (!brownNoiseRef.current) return;
-      brownNoiseRef.current.start(time);
-      brownNoiseRef.current.stop(time + 0.15);
+      brownNoiseRef.current.triggerAttackRelease('16n', time, 1);
     } else {
       const player = playersRef.current[track];
       if (!player) return;
@@ -124,6 +264,9 @@ const DrumMachine = () => {
       }
 
       try {
+        if (player.state === 'started') {
+          player.stop(time);
+        }
         player.start(time);
       } catch (e) {
         console.error(`Error starting player "${track}"`, e);
@@ -137,17 +280,22 @@ const DrumMachine = () => {
 
     if (isPlaying) {
       Tone.Transport.stop();
+      Tone.Transport.cancel();
       if (loopRef.current) {
         loopRef.current.stop();
+        loopRef.current.dispose();
+        loopRef.current = null;
       }
       setCurrentStep(0);
       setIsPlaying(false);
     } else {
-      let step = 0;
+      let step = currentStep;
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
 
       loopRef.current = new Tone.Loop((time) => {
-        Object.keys(pattern).forEach((track) => {
-          if (pattern[track][step]) {
+        Object.keys(patternRef.current).forEach((track) => {
+          if (patternRef.current[track][step]) {
             playSound(track, time);
           }
         });
@@ -167,6 +315,7 @@ const DrumMachine = () => {
 
   const reset = () => {
     setPattern({
+      kick: Array(16).fill(false),
       sine: Array(16).fill(false),
       white: Array(16).fill(false),
       brown: Array(16).fill(false),
@@ -177,98 +326,97 @@ const DrumMachine = () => {
     setCurrentStep(0);
   };
 
-  const tracks = [
-    { id: 'sine', label: 'Sine Wave', color: 'bg-cyan-500' },
-    { id: 'white', label: 'White Noise', color: 'bg-gray-400' },
-    { id: 'brown', label: 'Brown Noise', color: 'bg-amber-700' },
-    { id: 'scream1', label: 'Scream 1', color: 'bg-red-500' },
-    { id: 'scream2', label: 'Scream 2', color: 'bg-orange-500' },
-    { id: 'scream3', label: 'Scream 3', color: 'bg-pink-500' },
-  ];
-
   return (
-    <div className="min-h-screen bg-green-950 text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center text-orange-400">
-          Messica Machine
-        </h1>
+    <div className="drum-machine-shell">
+      <div className="drum-machine-frame">
+        <header className="machine-hero">
+          <h1 className="machine-title">Messica Machine</h1>
+          <p className="machine-subtitle">
+            A dream scream machine for building sharp rhythms from bass drum,
+            noise, synth, and voice.
+          </p>
+        </header>
 
-        <div className="bg-green-900 rounded-lg p-6 mb-6">
-          <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={startStop}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
-                isPlaying
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-orange-600 hover:bg-orange-700'
-              }`}
-            >
-              {isPlaying ? <Square size={20} /> : <Play size={20} />}
-              {isPlaying ? 'Stop' : 'Play'}
-            </button>
-
-            <button
-              onClick={reset}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold bg-green-700 hover:bg-green-600 transition"
-            >
-              <RotateCcw size={20} />
-              Reset
-            </button>
-
-            <div className="flex items-center gap-3 ml-auto">
-              <label className="font-semibold">BPM:</label>
-              <div className="flex gap-2">
-                {bpmOptions.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => setBpm(option)}
-                    className={`px-4 py-2 rounded font-semibold transition ${
-                      bpm === option
-                        ? 'bg-orange-600 hover:bg-orange-700'
-                        : 'bg-green-800 hover:bg-green-700'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+        <div className="machine-layout">
+          <section className="machine-panel">
+            <div className="machine-panel-header">
+              <div className="machine-status-pill" aria-live="polite">
+                <span className="machine-status-dot" />
+                {samplesLoaded ? 'Samples Ready' : 'Loading Samples'}
               </div>
             </div>
-          </div>
 
-          {!samplesLoaded && (
-            <p className="text-xs text-orange-200 mt-2">
-              Loading scream samples…
-            </p>
-          )}
-        </div>
+            <div className="machine-controls">
+              <div className="machine-button-row">
+                <button
+                  onClick={startStop}
+                  aria-pressed={isPlaying}
+                  className={`machine-button machine-button-primary ${
+                    isPlaying ? 'is-active' : ''
+                  }`}
+                >
+                  {isPlaying ? <Square size={18} /> : <Play size={18} />}
+                  {isPlaying ? 'Stop' : 'Play'}
+                </button>
 
-        <div className="bg-green-900 rounded-lg p-6">
-          {tracks.map((track) => (
-            <div key={track.id} className="mb-4 last:mb-0">
-              <div className="flex items-center gap-4">
-                <div className="w-32 font-semibold text-sm text-orange-200">
-                  {track.label}
-                </div>
-                <div className="flex gap-1">
-                  {pattern[track.id].map((active, i) => (
+                <button
+                  onClick={reset}
+                  className="machine-button machine-button-secondary"
+                >
+                  <RotateCcw size={18} />
+                  Reset
+                </button>
+              </div>
+
+              <div className="machine-bpm-group">
+                <div className="machine-bpm-label">Tempo {bpm} BPM</div>
+                <div className="machine-bpm-options">
+                  {bpmOptions.map((option) => (
                     <button
-                      key={i}
-                      onClick={() => toggleStep(track.id, i)}
-                      className={`w-12 h-12 rounded transition ${
-                        active
-                          ? track.color
-                          : 'bg-green-800 hover:bg-green-700'
-                      } ${
-                        currentStep === i && isPlaying
-                          ? 'ring-4 ring-orange-400'
-                          : ''
+                      key={option}
+                      onClick={() => handleBpmChange(option)}
+                      aria-pressed={bpm === option}
+                      className={`machine-bpm-button ${
+                        bpm === option ? 'is-selected' : ''
                       }`}
-                    />
+                    >
+                      {option}
+                    </button>
                   ))}
                 </div>
               </div>
             </div>
-          ))}
+
+            {!samplesLoaded && (
+              <p className="machine-loading">Loading scream samples…</p>
+            )}
+          </section>
+
+          <section className="machine-panel">
+            <div className="machine-grid">
+              {tracks.map((track) => (
+                <div key={track.id} className="machine-row">
+                  <div className="machine-track">
+                    <div className="machine-track-name">{track.label}</div>
+                    <div className="machine-track-kind">{track.detail}</div>
+                  </div>
+
+                  <div className="machine-steps">
+                    {pattern[track.id].map((active, i) => (
+                      <button
+                        key={i}
+                        onClick={() => toggleStep(track.id, i)}
+                        aria-label={`${track.label} step ${i + 1}`}
+                        className={`machine-step machine-step-accent-${track.accent} ${
+                          active ? 'is-active' : ''
+                        } ${currentStep === i && isPlaying ? 'is-current' : ''}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </div>

@@ -1,38 +1,390 @@
-.App {
+.drum-machine-shell {
+  min-height: 100vh;
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  color: var(--machine-text);
+  background: var(--machine-bg);
+}
+
+.drum-machine-frame {
+  width: min(1040px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.machine-hero {
+  padding: clamp(4rem, 16vw, 8rem) 0 clamp(1.8rem, 5vw, 2.8rem);
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.machine-kicker {
+  margin: 0 0 0.9rem;
+  font-family: "Sora", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--machine-muted);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.machine-title {
+  margin: 0 auto;
+  max-width: 13ch;
+  font-family: "Sora", sans-serif;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 1.18;
+  letter-spacing: -0.05em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.machine-title-accent {
+  color: var(--machine-muted);
+  font-weight: 600;
+}
+
+.machine-subtitle {
+  margin: 1.2rem auto 0;
+  max-width: 46rem;
+  color: var(--machine-muted);
+  font-size: 1rem;
+  line-height: 1.68;
+}
+
+.machine-layout {
+  display: grid;
+  gap: 0;
+}
+
+.machine-panel {
+  border-top: 1px solid var(--machine-line);
+  background: transparent;
+}
+
+.machine-panel-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.95rem 0 0;
+}
+
+.machine-section-label {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--machine-muted);
+  opacity: 0.82;
+}
+
+.machine-section-copy {
+  margin: 0.32rem 0 0;
+  max-width: none;
+  color: var(--machine-muted);
+  font-size: 0.92rem;
+  line-height: 1.58;
+  max-width: 34rem;
+}
+
+.machine-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  font-family: "Sora", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--machine-muted);
+  background: transparent;
+}
+
+.machine-status-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--machine-green);
+}
+
+.machine-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  padding: 0.85rem 0 1.15rem;
+}
+
+.machine-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.machine-button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 0.6rem;
+  min-height: 2.9rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid var(--machine-line);
+  border-radius: 999px;
+  font-family: "Sora", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 
-.App-link {
-  color: #61dafb;
+.machine-button:hover {
+  border-color: var(--machine-text);
+  background: var(--machine-hover);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.machine-button:active {
+  transform: translateY(1px);
+}
+
+.machine-button:focus-visible,
+.machine-bpm-button:focus-visible,
+.machine-step:focus-visible {
+  outline: 2px solid var(--machine-orange);
+  outline-offset: 2px;
+}
+
+.machine-button-primary {
+  color: var(--machine-orange);
+  background: transparent;
+}
+
+.machine-button-primary.is-active {
+  color: var(--machine-green-deep);
+  border-color: var(--machine-green-deep);
+  background: var(--machine-active-green);
+}
+
+.machine-button-secondary {
+  color: var(--machine-text);
+  background: transparent;
+}
+
+.machine-bpm-group {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+}
+
+.machine-bpm-label {
+  font-family: "Sora", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--machine-muted);
+}
+
+.machine-bpm-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.machine-bpm-button {
+  min-width: 4rem;
+  padding: 0.62rem 0.8rem;
+  border: 1px solid var(--machine-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--machine-muted);
+  font-family: "Sora", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 120ms ease;
+}
+
+.machine-bpm-button:hover {
+  border-color: var(--machine-text);
+  color: var(--machine-text);
+  background: var(--machine-hover);
+}
+
+.machine-bpm-button:active {
+  transform: translateY(1px);
+}
+
+.machine-bpm-button.is-selected {
+  border-color: var(--machine-orange);
+  color: var(--machine-orange);
+  background: var(--machine-active-orange);
+  box-shadow: inset 0 0 0 1px var(--machine-active-orange);
+}
+
+.machine-bpm-button[aria-pressed="true"] {
+  border-color: var(--machine-orange);
+  color: var(--machine-orange);
+}
+
+.machine-loading {
+  margin: -0.2rem 0 1.25rem;
+  color: var(--machine-muted);
+  font-size: 0.88rem;
+}
+
+.machine-grid {
+  padding: 0 0 0.8rem;
+}
+
+.machine-row {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+  border-top: 1px solid var(--machine-line);
+}
+
+.machine-row:first-of-type {
+  padding-top: 1rem;
+}
+
+.machine-row:last-of-type {
+  padding-bottom: 0;
+}
+
+.machine-track {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.machine-track-name {
+  font-family: "Sora", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--machine-text);
+}
+
+.machine-track-kind {
+  font-size: 0.76rem;
+  color: var(--machine-muted);
+}
+
+.machine-steps {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.machine-step {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 2.4rem;
+  border: 1px solid var(--machine-line);
+  border-radius: 8px;
+  background: var(--machine-surface);
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.machine-step:hover {
+  border-color: var(--machine-text);
+}
+
+.machine-step::before {
+  content: "";
+  position: absolute;
+  inset: 0.38rem;
+  border-radius: 4px;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+
+.machine-step.is-active::before {
+  opacity: 1;
+}
+
+.machine-step.is-current {
+  border-color: var(--machine-text);
+}
+
+.machine-step-accent-signal.is-active::before {
+  background: var(--machine-orange);
+}
+
+.machine-step-accent-kick.is-active::before {
+  background: #1f1f1f;
+}
+
+.machine-step-accent-static.is-active::before {
+  background: #8d8d8d;
+}
+
+.machine-step-accent-grit.is-active::before {
+  background: var(--machine-green);
+}
+
+.machine-step-accent-voice-a.is-active::before {
+  background: var(--machine-orange);
+}
+
+.machine-step-accent-voice-b.is-active::before {
+  background: #ef8f54;
+}
+
+.machine-step-accent-voice-c.is-active::before {
+  background: var(--machine-green);
+}
+
+@media (max-width: 900px) {
+  .machine-controls {
+    grid-template-columns: 1fr;
   }
-  to {
-    transform: rotate(360deg);
+
+  .machine-bpm-group {
+    justify-items: start;
+  }
+
+  .machine-bpm-options {
+    justify-content: flex-start;
+  }
+
+  .machine-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .drum-machine-shell {
+    padding: 1rem;
+  }
+
+  .machine-controls,
+  .machine-grid,
+  .machine-panel-header {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .machine-steps {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
