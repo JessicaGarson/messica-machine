@@ -18,9 +18,11 @@ const tracks = [
   { id: 'scream3', label: 'Scream 3', detail: 'Voice C', accent: 'voice-c' },
 ];
 
+const initialBpm = 97;
+
 const DrumMachine = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(97);
+  const [bpm, setBpm] = useState(initialBpm);
   const bpmOptions = [97, 123, 138, 192];
   const [currentStep, setCurrentStep] = useState(0);
   const [pattern, setPattern] = useState({
@@ -53,6 +55,9 @@ const DrumMachine = () => {
   }, [pattern]);
 
   useEffect(() => {
+    const players = {};
+    playersRef.current = players;
+
     const drumReverb = new Tone.Reverb({
       decay: 1.4,
       wet: 0.08,
@@ -86,7 +91,7 @@ const DrumMachine = () => {
     screamCompressor.connect(screamBusRef.current);
     screamBusRef.current.connect(masterLimiter);
 
-    Tone.Transport.bpm.value = bpm;
+    Tone.Transport.bpm.value = initialBpm;
 
     kickRef.current = new Tone.MembraneSynth({
       pitchDecay: 0.045,
@@ -192,7 +197,7 @@ const DrumMachine = () => {
       player.fadeOut = 0.05;
       // loud enough to be sure we hear them
       player.volume.value = -2;
-      playersRef.current[key] = player;
+      players[key] = player;
     });
 
     return () => {
@@ -211,7 +216,7 @@ const DrumMachine = () => {
       drumBusRef.current?.dispose();
       screamBusRef.current?.dispose();
       screamFilterRef.current?.dispose();
-      Object.values(playersRef.current).forEach((p) => p.dispose());
+      Object.values(players).forEach((p) => p.dispose());
       distortion.dispose();
       drumReverb.dispose();
       screamReverb.dispose();
