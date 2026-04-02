@@ -58,5 +58,6 @@ npm run build
 ## Notes
 
 - Audio starts after user interaction because browsers block autoplay by default.
-- Scream samples are stored in `src/assets/screams/`.
+- Original scream samples are stored in `src/assets/screams/`.
+- The sequencer uses shorter scream edits from `src/assets/screams/short/`.
 - The current version includes a bass drum track, updated audio routing for better scream separation, and a simplified visual style.

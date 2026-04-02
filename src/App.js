@@ -3,10 +3,10 @@ import * as Tone from 'tone';
 import { Play, Square, RotateCcw } from 'lucide-react';
 import './App.css';
 
-// 🔊 import scream samples so bundler gives us valid URLs
-import scream1Url from './assets/screams/scream.wav';
-import scream2Url from './assets/screams/scream2.wav';
-import scream3Url from './assets/screams/scream3.wav';
+// 🔊 Use shorter scream edits in the sequencer while keeping the full originals on disk.
+import scream1Url from './assets/screams/short/scream-short.wav';
+import scream2Url from './assets/screams/short/scream2-short.wav';
+import scream3Url from './assets/screams/short/scream3-short.wav';
 
 const tracks = [
   { id: 'kick', label: 'Bass Drum', detail: 'Low End', accent: 'kick' },
@@ -281,7 +281,6 @@ const DrumMachine = () => {
 
   const startStop = async () => {
     await Tone.start();
-    await Tone.loaded();
 
     if (isPlaying) {
       Tone.Transport.stop();
