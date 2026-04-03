@@ -1,6 +1,6 @@
 # messica-machine
 
-Dream scream machine for [10,000 Drum Machines](https://10kdrummachines.com).
+Dream scream machine for [10,000 Drum Machines](https://10kdrummachines.com). Can be found at [Messica-Machine.com](Messica-Machine.com)
 
 A browser-based 16-step drum machine built with React and Tone.js. Messica Machine lets you build rhythms from bass drum, synth, noise, and preloaded scream samples in a minimal interface with responsive light and dark mode styling.
 
